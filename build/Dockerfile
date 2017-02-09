@@ -1,11 +1,13 @@
 FROM golang:1.7-alpine
 
+ARG VERSION
 LABEL maintainer="evilwire"
+LABEL version=$VERSION
 LABEL description=""
 
 # setup the default workdir env var
 ENV WORKDIR $GOPATH/src/github.com/evilwire/morokei
-
+ENV VERSION $VERSION
 
 # get bash, git, openssh, and gvt
 RUN apk update && apk upgrade && \

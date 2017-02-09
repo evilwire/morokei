@@ -13,8 +13,23 @@ plugins {
     id "org.flywaydb.flyway" version "4.0.3"
 }
 
-
+/**
+ * Build the image that builds the morokei binary.
+ */
 task buildImage(type:Exec) {
     workingDir '.'
-    commandLine "docker", "build", "-f", "build/Dockerfile", "-t", "evilwire/morokei-build:${version}", "."
+    commandLine "docker", "build",
+            "--rm",
+            "-f", "build/Dockerfile",
+            "--build-arg", "VERSION=${version}",
+            "-t", "evilwire/morokei-build:${version}", "."
+}
+
+/**
+ * Builds the morokei binary with the appropriate version.
+ */
+task binary(type:Exec, dependsOn:[buildImage]) {
+    workingDir '.'
+    commandLine "docker", "run", "-v", "${workingDir}/build:/go/out",
+            "evilwire/morokei-build:${version}"
 }
