@@ -1,0 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.h2database:h2:1.4.191'
+        classpath 'postgresql:postgresql:9.1-901-1.jdbc4'
+    }
+}
+
+plugins {
+    id "org.flywaydb.flyway" version "4.0.3"
+}
+
+
+task buildImage(type:Exec) {
+    workingDir '.'
+    commandLine "docker", "build", "-f", "build/Dockerfile", "-t", "evilwire/morokei-build:${version}", "."
+}

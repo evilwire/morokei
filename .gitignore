@@ -23,8 +23,19 @@ _testmain.go
 *.test
 *.prof
 
-# Ignore IDEA
+# IntelliJ IDEA files
 .idea/
 .idea
 
 
+# gradle module files
+**/.gradle
+
+# go vendors files
+vendor/**
+!vendor/manifest
+
+# build artifacts (don't check binaries in)
+build/**
+!build/Dockerfile
+!build/entrypoint.sh

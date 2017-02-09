@@ -1,0 +1,32 @@
+FROM golang:1.7-alpine
+
+LABEL maintainer="evilwire"
+LABEL description=""
+
+# setup the default workdir env var
+ENV WORKDIR $GOPATH/src/github.com/evilwire/morokei
+
+
+# get bash, git, openssh, and gvt
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
+RUN go get -u github.com/FiloSottile/gvt
+
+
+# setup the work directory
+WORKDIR $WORKDIR
+
+# Copy the code to the workdir
+COPY . $WORKDIR
+
+# Get everything via gvt
+RUN cd $WORKDIR && gvt restore
+
+# copy the entrypoint script
+COPY build/entrypoint.sh $WORKDIR/entrypoint.sh
+
+# Expose the volume /go/out
+VOLUME /go/out
+
+
+ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
