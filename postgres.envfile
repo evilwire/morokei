@@ -1,0 +1,11 @@
+# The database configuration for local development.
+# No useful passwords. Seriously.
+
+POSTGRES_USER=morokei_admin
+POSTGRES_PASSWORD=^M0rok3i_4dM!N$
+POSTGRES_DB=morokei
+
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=morokai_admin
+DB_PASSWORD=^M0rok3i_4dM!N$

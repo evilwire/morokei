@@ -33,3 +33,15 @@ task binary(type:Exec, dependsOn:[buildImage]) {
     commandLine "docker", "run", "-v", "${workingDir}/build:/go/out",
             "evilwire/morokei-build:${version}"
 }
+
+/**
+ *
+ */
+task image(type:Exec, dependsOn:[binary]) {
+    workingDir '.'
+    commandLine "docker", "build",
+            "--rm",
+            "--build-arg", "VERSION=${version}",
+            "-t", "evilwire/morokei:${version}",
+            "."
+}

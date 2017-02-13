@@ -18,11 +18,12 @@ RUN go get -u github.com/FiloSottile/gvt
 # setup the work directory
 WORKDIR $WORKDIR
 
+# setup the dependents
+COPY ./vendor/manifest $WORKDIR/vendor/manifest
+RUN cd $WORKDIR && gvt restore
+
 # Copy the code to the workdir
 COPY . $WORKDIR
-
-# Get everything via gvt
-RUN cd $WORKDIR && gvt restore
 
 # copy the entrypoint script
 COPY build/entrypoint.sh $WORKDIR/entrypoint.sh
