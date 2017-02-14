@@ -8,8 +8,6 @@ import (
 	"github.com/golang/glog"
 	"database/sql"
 	_ "github.com/lib/pq"
-	"time"
-	"sync"
 	"github.com/evilwire/go-env"
 	"fmt"
 )
@@ -99,56 +97,12 @@ type App struct {
 	Db SqlClient
 }
 
-func (app *App) CheckHealth() (*HealthCheck, int) {
-	stats := app.Db.Stats()
-
-	pingChan := make(chan struct{ Err error; time.Duration }, 10)
-	wg := sync.WaitGroup {}
-	for i := 0; i < 10; i ++ {
-		wg.Add(1)
-
-		go func() {
-			startTime := time.Now()
-			pingErr := app.Db.Ping()
-			pingChan <- struct {
-				Err error
-				time.Duration
-			}{
-				Err: pingErr,
-				Duration: time.Since(startTime),
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-	close(pingChan)
-
-	var pingStatus status = OK
-	connSpeed := 0.00
-	errorRate := 0.00
-	for s := range pingChan {
-		if s.Err != nil {
-			pingStatus = ERROR
-			errorRate += 0.1
-		}
-
-		connSpeed += s.Duration.Seconds() * 100
-	}
-
-	return &HealthCheck{
-		Status: pingStatus,
-		Db: DbStatus {
-			Connections: stats.OpenConnections,
-			RoundTrip: connSpeed,
-		},
-	}, 200
-}
 
 func (app *App) HealthCheck(writer http.ResponseWriter, request *http.Request) {
 	header := writer.Header()
 	header.Set("Content-Type", "application/json; charset=utf-8")
 
-	healthCheck, statusCode := app.CheckHealth()
+	healthCheck := NewHealthChecker().CheckHealth(app.Db)
 	hcJson, err := json.Marshal(healthCheck)
 	if err != nil {
 		glog.Errorf("Error processing /healthcheck: %v", err)
@@ -157,7 +111,7 @@ func (app *App) HealthCheck(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	writer.WriteHeader(statusCode)
+	writer.WriteHeader(200)
 	writer.Write(hcJson)
 }
 
